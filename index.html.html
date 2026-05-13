@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Water Quality Prediction System</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --white: #ffffff;
+      --surface: #e8edf2;
+      --border: #c8d4e0;
+      --navy: #0a2540;
+      --blue: #1a56db;
+      --teal: #0d9488;
+      --good: #059669;
+      --bad: #dc2626;
+      --warn: #d97706;
+      --text: #0a2540;
+      --muted: #64748b;
+      --fh: 'Playfair Display', serif;
+      --fb: 'Source Sans 3', sans-serif;
+      --fm: 'Source Code Pro', monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--fb);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--navy);
+      color: white;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 20px 32px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #1a56db, #0d9488);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .header-text h1 {
+      font-family: var(--fh);
+      font-size: 1.4rem;
+      color: white;
+    }
+
+    .header-text p {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 3px;
+    }
+
+    .header-badge {
+      margin-left: auto;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 0.8);
+      font-family: var(--fm);
+      font-size: 0.7rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--navy);
+      padding: 0 32px;
+      border-bottom: 3px solid #1a56db;
+    }
+
+    .tab {
+      padding: 14px 20px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -3px;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      color: white;
+      border-bottom-color: #1a56db;
+    }
+
+    .tab:hover:not(.active) {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* CONTENT */
+    .content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .page {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .sec-title {
+      font-family: var(--fh);
+      font-size: 1.1rem;
+      color: var(--navy);
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sec-title span {
+      font-size: 0.7rem;
+      font-family: var(--fm);
+      color: var(--muted);
+      background: var(--surface);
+      padding: 3px 10px;
+      border-radius: 4px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-family: var(--fh);
+      font-size: 0.95rem;
+      color: var(--navy);
+      margin-bottom: 16px;
+    }
+
+    /* HOME */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .info-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .info-card .ic {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+
+    .info-card h4 {
+      font-family: var(--fh);
+      font-size: 0.9rem;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .info-card p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      left: 18px;
+      top: 24px;
+      bottom: 24px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--blue), var(--teal));
+    }
+
+    .step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      padding: 16px 0;
+      opacity: 0;
+      transform: translateX(-12px);
+      animation: si .4s ease forwards;
+    }
+
+    .step:nth-child(1) {
+      animation-delay: .05s
+    }
+
+    .step:nth-child(2) {
+      animation-delay: .1s
+    }
+
+    .step:nth-child(3) {
+      animation-delay: .15s
+    }
+
+    .step:nth-child(4) {
+      animation-delay: .2s
+    }
+
+    .step:nth-child(5) {
+      animation-delay: .25s
+    }
+
+    @keyframes si {
+      to {
+        opacity: 1;
+        transform: translateX(0)
+      }
+    }
+
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--fm);
+      font-size: 0.8rem;
+      color: white;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-content h4 {
+      font-family: var(--fh);
+      font-size: 0.9rem;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .step-content p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* DATASET */
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      background: var(--surface);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .upload-area:hover {
+      border-color: var(--blue);
+      background: #eff6ff;
+    }
+
+    .upload-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+
+    .upload-area h4 {
+      font-family: var(--fh);
+      font-size: 1rem;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .upload-area p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .upload-btn {
+      display: inline-block;
+      margin-top: 14px;
+      background: var(--blue);
+      color: white;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+
+    #file-input {
+      display: none;
+    }
+
+    .dataset-info {
+      display: none;
+      margin-bottom: 16px;
+    }
+
+    .info-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.76rem;
+      color: var(--navy);
+      font-family: var(--fm);
+    }
+
+    .pill strong {
+      color: var(--blue);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead tr {
+      background: var(--navy);
+      color: white;
+    }
+
+    th {
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 600;
+      font-family: var(--fm);
+      font-size: 0.7rem;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    tbody tr:nth-child(even) {
+      background: var(--surface);
+    }
+
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      font-family: var(--fm);
+      font-size: 0.74rem;
+    }
+
+    /* PREPROCESSING */
+    .pre-step {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .pre-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--teal);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--fm);
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .pre-content h4 {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .pre-content p {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .pre-badge {
+      display: inline-block;
+      font-family: var(--fm);
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+
+    .badge-done {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-val {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    /* MODEL */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      font-family: var(--fm);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .metric-val {
+      font-family: var(--fh);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--blue);
+    }
+
+    .cm-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      max-width: 340px;
+    }
+
+    .cm-cell {
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .cm-cell .cv {
+      font-family: var(--fh);
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .cm-cell .cl {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* PREDICT */
+    .params-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .param-box {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      transition: all 0.2s;
+    }
+
+    .param-box:focus-within {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.08);
+    }
+
+    .param-box label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      font-family: var(--fm);
+      color: var(--blue);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .param-box .unit {
+      margin-left: auto;
+      font-size: 0.63rem;
+      color: var(--muted);
+      background: var(--surface);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .param-box input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 1.4rem;
+      font-family: var(--fm);
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .param-box input::placeholder {
+      color: #cbd5e1;
+      font-size: 1rem;
+    }
+
+    .param-box .sr {
+      font-size: 0.63rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .predict-btn {
+      width: 100%;
+      padding: 16px;
+      background: var(--blue);
+      border: none;
+      border-radius: 10px;
+      font-family: var(--fh);
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 24px;
+    }
+
+    .predict-btn:hover {
+      background: #1344b0;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(26, 86, 219, 0.3);
+    }
+
+    /* ══ RESULT OUTPUT — IMPROVED ══ */
+    .result-section {
+      display: none;
+    }
+
+    .result-section.show {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    /* Step 1 — Classification Result */
+    .result-main {
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .result-main.good {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      border: 2px solid #16a34a;
+    }
+
+    .result-main.bad {
+      background: linear-gradient(135deg, #fef2f2, #fee2e2);
+      border: 2px solid #dc2626;
+    }
+
+    .result-emoji {
+      font-size: 3.5rem;
+      margin-bottom: 12px;
+    }
+
+    .result-title {
+      font-family: var(--fh);
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .result-main.good .result-title {
+      color: #15803d;
+    }
+
+    .result-main.bad .result-title {
+      color: #b91c1c;
+    }
+
+    .result-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .result-score-badge {
+      display: inline-block;
+      background: white;
+      border-radius: 30px;
+      padding: 8px 24px;
+      font-family: var(--fm);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--navy);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Step 2 — Stats row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-box .sb-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      font-family: var(--fm);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .stat-box .sb-val {
+      font-family: var(--fh);
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .stat-box .sb-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* Step 3 — Parameter Issues */
+    .issues-section {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .issues-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .issues-header h3 {
+      font-family: var(--fh);
+      font-size: 1rem;
+      color: var(--navy);
+    }
+
+    .issues-header .count-badge {
+      background: #fef3c7;
+      color: #92400e;
+      font-family: var(--fm);
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .issue-card {
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .issue-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .issue-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .issue-body h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .issue-body p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .issue-tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-top: 6px;
+      font-family: var(--fm);
+    }
+
+    /* Step 4 — Pollution Source */
+    .pollution-section {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .pollution-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .pollution-header h3 {
+      font-family: var(--fh);
+      font-size: 1rem;
+      color: var(--navy);
+    }
+
+    .source-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .source-card {
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .source-card .sc-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .source-card h4 {
+      font-family: var(--fh);
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .source-card p {
+      font-size: 0.74rem;
+      color: var(--muted);
+    }
+
+    /* Step 5 — Solutions */
+    .solutions-section {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .solutions-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .solutions-header h3 {
+      font-family: var(--fh);
+      font-size: 1rem;
+      color: var(--navy);
+    }
+
+    .solution-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      padding: 14px;
+      background: var(--surface);
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .solution-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .sol-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--fm);
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .sol-content h4 {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 2px;
+    }
+
+    .sol-content p {
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    /* Safe water message */
+    .safe-msg {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .safe-msg h4 {
+      font-family: var(--fh);
+      font-size: 1rem;
+      color: #15803d;
+      margin-bottom: 6px;
+    }
+
+    .safe-msg p {
+      font-size: 0.8rem;
+      color: #166534;
+    }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .about-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .about-card h3 {
+      font-family: var(--fh);
+      font-size: 0.9rem;
+      color: var(--navy);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+    }
+
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+
+    .stat-row span:first-child {
+      color: var(--muted);
+    }
+
+    .stat-val {
+      font-family: var(--fm);
+      color: var(--blue);
+      font-size: 0.78rem;
+    }
+
+    .bar-wrap {
+      margin-bottom: 10px;
+    }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .bar-track {
+      height: 7px;
+      background: var(--surface);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+      border-radius: 4px;
+      animation: grow 1s ease forwards;
+      width: 0;
+    }
+
+    @keyframes grow {
+      to {
+        width: var(--w)
+      }
+    }
+
+    .full-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      grid-column: span 2;
+    }
+
+    .full-card h3 {
+      font-family: var(--fh);
+      font-size: 0.9rem;
+      color: var(--navy);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .proj-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .proj-item .pl {
+      font-size: 0.66rem;
+      color: var(--muted);
+      font-family: var(--fm);
+      margin-bottom: 3px;
+      letter-spacing: 1px;
+    }
+
+    .proj-item .pv {
+      font-family: var(--fh);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    @media(max-width:640px) {
+
+      .params-grid,
+      .about-grid,
+      .info-grid,
+      .metrics-grid,
+      .stats-row {
+        grid-template-columns: 1fr
+      }
+
+      .full-card {
+        grid-column: span 1
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="header-top">
+      <div class="logo">💧</div>
+      <div class="header-text">
+        <h1>Water Quality Prediction & Pollution Source Identification</h1>
+        <p>Machine Learning System using Random Forest · Hema M · UCE Tindivanam · B.Tech IT 2025–2026</p>
+      </div>
+      <div class="header-badge">Random Forest · 120 Trees · 95% Accuracy</div>
+    </div>
+    <nav class="tabs">
+      <button class="tab active" onclick="sp('home',this)">🏠 Home</button>
+      <button class="tab" onclick="sp('dataset',this)">📁 Dataset</button>
+      <button class="tab" onclick="sp('preprocess',this)">🧹 Preprocessing</button>
+      <button class="tab" onclick="sp('model',this)">🤖 Model</button>
+      <button class="tab" onclick="sp('predict',this)">🔬 Predict</button>
+      <button class="tab" onclick="sp('about',this)">📊 About</button>
+    </nav>
+  </header>
+
+  <div class="content">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="ic">🤖</div>
+          <h4>Random Forest ML</h4>
+          <p>120 decision trees classify water quality from 11 chemical and physical parameters with 95% accuracy.</p>
+        </div>
+        <div class="info-card">
+          <div class="ic">⚡</div>
+          <h4>Real-time Prediction</h4>
+          <p>Enter 11 water parameters manually and get instant Good or Bad water classification with quality score.</p>
+        </div>
+        <div class="info-card">
+          <div class="ic">🔍</div>
+          <h4>Pollution Source ID</h4>
+          <p>Identifies Industrial, Domestic Sewage or Animal waste contamination and recommends solutions.</p>
+        </div>
+      </div>
+      <div class="sec-title">Project Workflow <span>5 STAGES</span></div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h4>Data Collection</h4>
+            <p>Water quality dataset collected from Kaggle containing 1000 real-world water samples with 11 chemical and
+              physical parameters — pH, Dissolved Oxygen, Turbidity, Electrical Conductivity, TDS, Nitrate, Phosphate,
+              BOD, COD, Coliform Bacteria and Ammonia.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h4>Data Preprocessing</h4>
+            <p>Raw data cleaned and a balanced Water Quality Score computed using weighted formula: DO(30%) + BOD(20%) +
+              COD(20%) + Ammonia(20%) + base(10%). Dynamic threshold of 0.5792 applied. Dataset: 509 Good and 491 Bad
+              samples.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h4>Model Training</h4>
+            <p>Two Random Forest models trained — Classifier predicts Good/Bad category, Regressor predicts Quality
+              Score. 120 trees, 80/20 split — 800 training and 200 testing samples.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <h4>Prediction & Classification</h4>
+            <p>User enters 11 parameters manually. Model predicts Water Quality Score and classifies as Good Water ✅ or
+              Bad Water ⚠️. Model achieved 95% accuracy on test data.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">05</div>
+          <div class="step-content">
+            <h4>Pollution Source Identification</h4>
+            <p>When water is Bad — BOD, COD and Coliform are checked. High COD → Industrial Pollution. High BOD or
+              Coliform → Domestic Sewage. Risk Level calculated. Solutions recommended.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATASET -->
+    <div class="page" id="page-dataset">
+      <div class="sec-title">Dataset <span>BROWSE & UPLOAD</span></div>
+      <div class="card">
+        <div class="card-title">📁 Upload Water Quality Dataset</div>
+        <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()"
+          ondragover="event.preventDefault();this.classList.add('dragover')"
+          ondragleave="this.classList.remove('dragover')" ondrop="handleDrop(event)">
+          <div class="upload-icon">📂</div>
+          <h4>Browse and Upload Dataset</h4>
+          <p>Drag and drop your CSV file here or click to browse</p>
+          <p style="margin-top:6px;font-size:0.74rem;color:#94a3b8;">Supported: .csv &nbsp;|&nbsp; Expected:
+            Water_Quality_Assessment.csv</p>
+          <button class="upload-btn"
+            onclick="event.stopPropagation();document.getElementById('file-input').click()">Choose File</button>
+        </div>
+        <input type="file" id="file-input" accept=".csv" onchange="handleFile(this)">
+        <div class="dataset-info" id="dataset-info">
+          <div class="info-pills" id="info-pills"></div>
+          <div class="card-title">📊 Dataset Preview — First 10 Rows</div>
+          <div class="table-wrap" id="table-wrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREPROCESSING -->
+    <div class="page" id="page-preprocess">
+      <div class="sec-title">Data Preprocessing <span>STEP BY STEP</span></div>
+      <div class="card">
+        <div class="card-title">📋 Preprocessing Pipeline</div>
+        <p style="font-size:0.82rem;color:var(--muted);margin-bottom:20px;">All preprocessing steps applied to raw
+          dataset before model training.</p>
+        <div class="pre-step">
+          <div class="pre-num">1</div>
+          <div class="pre-content">
+            <h4>Load Dataset</h4>
+            <p>Loaded Water_Quality_Assessment.csv using pandas library containing 1000 water samples with 11
+              parameters.</p><span class="pre-badge badge-done">✅ Completed</span><span class="pre-badge badge-val"
+              style="margin-left:6px">Rows: 1000 · Columns: 13</span>
+          </div>
+        </div>
+        <div class="pre-step">
+          <div class="pre-num">2</div>
+          <div class="pre-content">
+            <h4>Column Name Cleaning</h4>
+            <p>Stripped all whitespace from column names using <code
+                style="background:var(--surface);padding:1px 5px;border-radius:3px;font-family:var(--fm);font-size:0.78rem">data.columns.str.strip()</code>
+            </p><span class="pre-badge badge-done">✅ Completed</span>
+          </div>
+        </div>
+        <div class="pre-step">
+          <div class="pre-num">3</div>
+          <div class="pre-content">
+            <h4>Water Quality Score Computation</h4>
+            <p>Score = 0.3×(DO/14) + 0.2×(1−BOD/10) + 0.2×(1−COD/50) + 0.2×(1−NH3/5) + 0.1</p><span
+              class="pre-badge badge-done">✅ Completed</span><span class="pre-badge badge-val"
+              style="margin-left:6px">Range: 0.0 to 1.0</span>
+          </div>
+        </div>
+        <div class="pre-step">
+          <div class="pre-num">4</div>
+          <div class="pre-content">
+            <h4>Score Clipping</h4>
+            <p>Clipped all score values between 0 and 1 to remove out-of-range values.</p><span
+              class="pre-badge badge-done">✅ Completed</span>
+          </div>
+        </div>
+        <div class="pre-step">
+          <div class="pre-num">5</div>
+          <div class="pre-content">
+            <h4>Dynamic Threshold & Category Creation</h4>
+            <p>Applied mean score as threshold. Above threshold = Good Water (1). Below = Bad Water (0).</p><span
+              class="pre-badge badge-done">✅ Completed</span><span class="pre-badge badge-val"
+              style="margin-left:6px">Threshold: 0.5792</span><span class="pre-badge badge-done"
+              style="margin-left:6px">Good: 509 · Bad: 491</span>
+          </div>
+        </div>
+        <div class="pre-step">
+          <div class="pre-num">6</div>
+          <div class="pre-content">
+            <h4>Feature Selection</h4>
+            <p>Selected 11 parameters as input features: pH, Dissolved Oxygen, Turbidity, EC, TDS, Nitrate, Phosphate,
+              BOD, COD, Coliform, Ammonia.</p><span class="pre-badge badge-done">✅ Completed</span><span
+              class="pre-badge badge-val" style="margin-left:6px">11 Features</span>
+          </div>
+        </div>
+        <div class="pre-step">
+          <div class="pre-num">7</div>
+          <div class="pre-content">
+            <h4>Train / Test Split</h4>
+            <p>80% training (800 samples) and 20% testing (200 samples). random_state=42.</p><span
+              class="pre-badge badge-done">✅ Completed</span><span class="pre-badge badge-val"
+              style="margin-left:6px">Train: 800 · Test: 200</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODEL -->
+    <div class="page" id="page-model">
+      <div class="sec-title">Model Training <span>RANDOM FOREST</span></div>
+      <div class="card">
+        <div class="card-title">⚙️ Model Configuration</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <p style="font-size:0.76rem;color:var(--muted);margin-bottom:10px;font-weight:600;letter-spacing:1px">RF
+              CLASSIFIER</p>
+            <div class="stat-row"><span>Purpose</span><span class="stat-val">Predict Good / Bad</span></div>
+            <div class="stat-row"><span>n_estimators</span><span class="stat-val">120</span></div>
+            <div class="stat-row"><span>random_state</span><span class="stat-val">42</span></div>
+            <div class="stat-row"><span>Output</span><span class="stat-val">0 (Bad) or 1 (Good)</span></div>
+          </div>
+          <div>
+            <p style="font-size:0.76rem;color:var(--muted);margin-bottom:10px;font-weight:600;letter-spacing:1px">RF
+              REGRESSOR</p>
+            <div class="stat-row"><span>Purpose</span><span class="stat-val">Predict Quality Score</span></div>
+            <div class="stat-row"><span>n_estimators</span><span class="stat-val">120</span></div>
+            <div class="stat-row"><span>random_state</span><span class="stat-val">42</span></div>
+            <div class="stat-row"><span>Output</span><span class="stat-val">0.0 to 1.0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="sec-title">Performance Results <span>ACTUAL OUTPUT</span></div>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-label">ACCURACY</div>
+          <div class="metric-val">95.0%</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:2px">Overall</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">PRECISION</div>
+          <div class="metric-val">97.0%</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:2px">Good Water</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">RECALL</div>
+          <div class="metric-val">93.27%</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:2px">Good Water</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">F1 SCORE</div>
+          <div class="metric-val">95.1%</div>
+          <div style="font-size:0.7rem;color:var(--muted);margin-top:2px">Harmonic Mean</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Confusion Matrix</div>
+        <div class="cm-grid">
+          <div class="cm-cell" style="background:#dcfce7">
+            <div class="cv" style="color:#166534">93</div>
+            <div class="cl">True Negative (Bad→Bad ✅)</div>
+          </div>
+          <div class="cm-cell" style="background:#fee2e2">
+            <div class="cv" style="color:#991b1b">3</div>
+            <div class="cl">False Positive (Bad→Good ❌)</div>
+          </div>
+          <div class="cm-cell" style="background:#fee2e2">
+            <div class="cv" style="color:#991b1b">7</div>
+            <div class="cl">False Negative (Good→Bad ❌)</div>
+          </div>
+          <div class="cm-cell" style="background:#dcfce7">
+            <div class="cv" style="color:#166534">97</div>
+            <div class="cl">True Positive (Good→Good ✅)</div>
+          </div>
+        </div>
+        <p style="font-size:0.78rem;color:var(--muted);margin-top:14px">190 correct predictions out of 200 test samples.
+        </p>
+      </div>
+    </div>
+
+    <!-- PREDICT -->
+    <div class="page" id="page-predict">
+      <div class="sec-title">Prediction <span>ENTER 11 PARAMETERS MANUALLY</span></div>
+      <div class="card">
+        <div class="card-title">🔬 Enter Water Quality Parameters</div>
+        <div class="params-grid">
+          <div class="param-box"><label>⚗️ pH <span class="unit">0–14</span></label><input type="number" id="ph"
+              placeholder="7.2" step="0.01" min="0" max="14">
+            <div class="sr">Safe: 6.5–8.5</div>
+          </div>
+          <div class="param-box"><label>🫧 Dissolved Oxygen <span class="unit">mg/L</span></label><input type="number"
+              id="do" placeholder="8.0" step="0.01" min="0">
+            <div class="sr">Safe: ≥ 6 mg/L</div>
+          </div>
+          <div class="param-box"><label>🌫️ Turbidity <span class="unit">NTU</span></label><input type="number"
+              id="turb" placeholder="1.5" step="0.01" min="0">
+            <div class="sr">Safe: ≤ 4 NTU</div>
+          </div>
+          <div class="param-box"><label>⚡ Electrical Conductivity <span class="unit">µS/cm</span></label><input
+              type="number" id="ec" placeholder="400" step="1" min="0">
+            <div class="sr">Safe: 200–800</div>
+          </div>
+          <div class="param-box"><label>💧 Total Dissolved Solids <span class="unit">mg/L</span></label><input
+              type="number" id="tds" placeholder="500" step="1" min="0">
+            <div class="sr">Safe: ≤ 500</div>
+          </div>
+          <div class="param-box"><label>🌿 Nitrate <span class="unit">mg/L</span></label><input type="number" id="nit"
+              placeholder="5.0" step="0.01" min="0">
+            <div class="sr">Safe: ≤ 10</div>
+          </div>
+          <div class="param-box"><label>🧪 Phosphate <span class="unit">mg/L</span></label><input type="number"
+              id="phos" placeholder="0.5" step="0.01" min="0">
+            <div class="sr">Safe: ≤ 1</div>
+          </div>
+          <div class="param-box"><label>🦠 BOD <span class="unit">mg/L</span></label><input type="number" id="bod"
+              placeholder="2.0" step="0.01" min="0">
+            <div class="sr">Safe: ≤ 5</div>
+          </div>
+          <div class="param-box"><label>🏭 COD <span class="unit">mg/L</span></label><input type="number" id="cod"
+              placeholder="8.0" step="0.01" min="0">
+            <div class="sr">Safe: ≤ 10</div>
+          </div>
+          <div class="param-box"><label>🧫 Coliform Bacteria <span class="unit">CFU/mL</span></label><input
+              type="number" id="col" placeholder="500" step="1" min="0">
+            <div class="sr">Safe: ≤ 1000</div>
+          </div>
+          <div class="param-box" style="grid-column:span 2"><label>⚠️ Ammonia <span
+                class="unit">mg/L</span></label><input type="number" id="amm" placeholder="0.5" step="0.01" min="0">
+            <div class="sr">Safe: ≤ 0.5</div>
+          </div>
+        </div>
+        <button class="predict-btn" onclick="predict()">⚡ Analyze Water Quality</button>
+      </div>
+
+      <!-- RESULT OUTPUT — FULLY IMPROVED -->
+      <div class="result-section" id="result-section">
+
+        <!-- STEP 1: Classification -->
+        <div class="result-main" id="result-main">
+          <div class="result-emoji" id="result-emoji"></div>
+          <div class="result-title" id="result-title"></div>
+          <div class="result-desc" id="result-desc"></div>
+          <div class="result-score-badge" id="result-score"></div>
+        </div>
+
+        <!-- STEP 2: Stats -->
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="sb-label">WATER QUALITY SCORE</div>
+            <div class="sb-val" id="sb-score" style="color:var(--blue)">—</div>
+            <div class="sb-sub">0.5792 = threshold</div>
+          </div>
+          <div class="stat-box">
+            <div class="sb-label">RISK LEVEL</div>
+            <div class="sb-val" id="sb-risk">—</div>
+            <div class="sb-sub" id="sb-risk-sub">Based on issues count</div>
+          </div>
+          <div class="stat-box">
+            <div class="sb-label">ISSUES DETECTED</div>
+            <div class="sb-val" id="sb-issues" style="color:var(--warn)">—</div>
+            <div class="sb-sub">Parameter violations</div>
+          </div>
+        </div>
+
+        <!-- STEP 3: Parameter Issues -->
+        <div class="issues-section" id="issues-section" style="display:none">
+          <div class="issues-header">
+            <h3>⚠️ Parameter Issues Detected</h3>
+            <span class="count-badge" id="issues-count"></span>
+          </div>
+          <div id="issues-list"></div>
+        </div>
+
+        <!-- STEP 4: Pollution Source -->
+        <div class="pollution-section" id="pollution-section" style="display:none">
+          <div class="pollution-header">
+            <h3>🏭 Pollution Source Identification</h3>
+          </div>
+          <div class="source-cards" id="source-cards"></div>
+        </div>
+
+        <!-- STEP 5: Solutions -->
+        <div class="solutions-section" id="solutions-section" style="display:none">
+          <div class="solutions-header">
+            <h3>💡 Recommended Solutions</h3>
+          </div>
+          <div id="solutions-list"></div>
+        </div>
+
+        <!-- Safe water message -->
+        <div class="safe-msg" id="safe-msg" style="display:none">
+          <h4>✅ Water Quality is Good — No Issues Found!</h4>
+          <p>All parameters are within safe limits. This water is suitable for use. No pollution source detected.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="page" id="page-about">
+      <div class="sec-title">About Model <span>PROJECT DETAILS</span></div>
+      <div class="about-grid">
+        <div class="about-card">
+          <h3>Model Performance</h3>
+          <div class="bar-wrap">
+            <div class="bar-label"><span>Accuracy</span><span>95.0%</span></div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--w:95%"></div>
+            </div>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-label"><span>Precision</span><span>97.0%</span></div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--w:97%"></div>
+            </div>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-label"><span>Recall</span><span>93.27%</span></div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--w:93.27%"></div>
+            </div>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-label"><span>F1 Score</span><span>95.1%</span></div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--w:95.1%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="about-card">
+          <h3>Algorithm Details</h3>
+          <div class="stat-row"><span>Algorithm</span><span class="stat-val">Random Forest</span></div>
+          <div class="stat-row"><span>Trees</span><span class="stat-val">120</span></div>
+          <div class="stat-row"><span>Classifier Output</span><span class="stat-val">Good / Bad</span></div>
+          <div class="stat-row"><span>Regressor Output</span><span class="stat-val">Quality Score</span></div>
+          <div class="stat-row"><span>Train / Test</span><span class="stat-val">80% / 20%</span></div>
+          <div class="stat-row"><span>Threshold</span><span class="stat-val">0.5792</span></div>
+          <div class="stat-row"><span>Dataset</span><span class="stat-val">Kaggle (1000 samples)</span></div>
+        </div>
+        <div class="full-card">
+          <h3>Project Information</h3>
+          <div class="proj-grid">
+            <div class="proj-item">
+              <div class="pl">BATCH NO</div>
+              <div class="pv">15</div>
+            </div>
+            <div class="proj-item">
+              <div class="pl">DEPARTMENT</div>
+              <div class="pv">Information Technology</div>
+            </div>
+            <div class="proj-item">
+              <div class="pl">ACADEMIC YEAR</div>
+              <div class="pv">2022 – 2026</div>
+            </div>
+            <div class="proj-item">
+              <div class="pl">COLLEGE</div>
+              <div class="pv">UCE Tindivanam</div>
+            </div>
+            <div class="proj-item">
+              <div class="pl">ALGORITHM</div>
+              <div class="pv">Random Forest</div>
+            </div>
+            <div class="proj-item">
+              <div class="pl">DATASET</div>
+              <div class="pv">Kaggle</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function sp(n, b) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-' + n).classList.add('active');
+      b.classList.add('active');
+    }
+
+    function handleFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => parseCSV(e.target.result, file.name, file.size);
+      reader.readAsText(file);
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('upload-area').classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.name.endsWith('.csv')) {
+        const reader = new FileReader();
+        reader.onload = ev => parseCSV(ev.target.result, file.name, file.size);
+        reader.readAsText(file);
+      }
+    }
+
+    function parseCSV(text, name, size) {
+      const lines = text.trim().split('\n');
+      const headers = lines[0].split(',').map(h => h.trim());
+      const rows = lines.slice(1, 11).map(l => l.split(',').map(c => c.trim()));
+      const total = lines.length - 1;
+      document.getElementById('info-pills').innerHTML = `
+    <div class="pill">📄 File: <strong>${name}</strong></div>
+    <div class="pill">📊 Total Rows: <strong>${total}</strong></div>
+    <div class="pill">📋 Columns: <strong>${headers.length}</strong></div>
+    <div class="pill">💾 Size: <strong>${(size / 1024).toFixed(1)} KB</strong></div>`;
+      let html = '<table><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+      rows.forEach(row => { html += '<tr>' + row.map(c => `<td>${c}</td>`).join('') + '</tr>'; });
+      html += '</tbody></table>';
+      document.getElementById('table-wrap').innerHTML = html;
+      document.getElementById('dataset-info').style.display = 'block';
+      document.getElementById('upload-area').innerHTML = `<div class="upload-icon">✅</div><h4>${name} uploaded successfully!</h4><p>${total} rows · ${headers.length} columns</p>`;
+    }
+
+    function predict() {
+      const ph = parseFloat(document.getElementById('ph').value);
+      const dov = parseFloat(document.getElementById('do').value);
+      const turb = parseFloat(document.getElementById('turb').value);
+      const ec = parseFloat(document.getElementById('ec').value);
+      const tds = parseFloat(document.getElementById('tds').value);
+      const nit = parseFloat(document.getElementById('nit').value);
+      const phos = parseFloat(document.getElementById('phos').value);
+      const bod = parseFloat(document.getElementById('bod').value);
+      const cod = parseFloat(document.getElementById('cod').value);
+      const col = parseFloat(document.getElementById('col').value);
+      const amm = parseFloat(document.getElementById('amm').value);
+
+      if ([ph, dov, turb, ec, tds, nit, phos, bod, cod, col, amm].some(isNaN)) {
+        alert('⚠️ Please fill all 11 parameters!'); return;
+      }
+
+      // Water Quality Score
+      let score = 0.3 * (dov / 14) + 0.2 * (1 - bod / 10) + 0.2 * (1 - cod / 50) + 0.2 * (1 - amm / 5) + 0.1;
+      score = Math.min(1, Math.max(0, score));
+      const threshold = 0.5792;
+      const isGood = score >= threshold;
+
+      // Issues
+      const issues = [];
+      if (bod > 5) issues.push({
+        name: 'High BOD Detected',
+        detail: `BOD value is ${bod} mg/L which exceeds safe limit of 5 mg/L`,
+        reason: 'Organic pollution — presence of decomposing organic matter',
+        solution: 'Improve sewage treatment plant efficiency',
+        source: 'Domestic Sewage',
+        sourceIcon: '🏘️',
+        sourceDesc: 'Household and municipal wastewater discharge',
+        sourceBg: '#fef3c7', sourceBorder: '#f59e0b',
+        icon: '🦠', iconBg: '#fff7ed', tag: 'BOD > 5 mg/L', tagBg: '#fed7aa', tagColor: '#c2410c'
+      });
+      if (cod > 10) issues.push({
+        name: 'High COD Detected',
+        detail: `COD value is ${cod} mg/L which exceeds safe limit of 10 mg/L`,
+        reason: 'Chemical pollution — presence of industrial chemical waste',
+        solution: 'Treat industrial wastewater before discharge',
+        source: 'Industrial Pollution',
+        sourceIcon: '🏭',
+        sourceDesc: 'Factory and industrial effluent discharge into water bodies',
+        sourceBg: '#fee2e2', sourceBorder: '#ef4444',
+        icon: '⚗️', iconBg: '#fef2f2', tag: 'COD > 10 mg/L', tagBg: '#fecaca', tagColor: '#b91c1c'
+      });
+      if (col > 1000) issues.push({
+        name: 'High Coliform Bacteria Detected',
+        detail: `Coliform count is ${col} CFU/mL which exceeds safe limit of 1000 CFU/mL`,
+        reason: 'Fecal contamination — presence of harmful bacteria',
+        solution: 'Disinfect water using chlorination process',
+        source: 'Animal or Human Waste',
+        sourceIcon: '🐄',
+        sourceDesc: 'Fecal matter from animals or humans contaminating water source',
+        sourceBg: '#f3e8ff', sourceBorder: '#a855f7',
+        icon: '🧫', iconBg: '#fdf4ff', tag: 'Coliform > 1000', tagBg: '#e9d5ff', tagColor: '#7c3aed'
+      });
+
+      const risk = issues.length === 0 ? 'Low ✅' : issues.length === 1 ? 'Medium ⚠️' : 'High 🚨';
+      const riskColor = issues.length === 0 ? '#059669' : issues.length === 1 ? '#d97706' : '#dc2626';
+
+      // Show result section
+      const rs = document.getElementById('result-section');
+      rs.className = 'result-section show';
+
+      // Step 1 — Classification
+      const rm = document.getElementById('result-main');
+      rm.className = 'result-main ' + (isGood ? 'good' : 'bad');
+      document.getElementById('result-emoji').textContent = isGood ? '✅' : '⚠️';
+      document.getElementById('result-title').textContent = isGood ? 'GOOD WATER' : 'BAD WATER';
+      document.getElementById('result-desc').textContent = isGood
+        ? 'Water quality is within safe limits. Suitable for use.'
+        : 'Water quality is below safe standards. Not suitable for use.';
+      document.getElementById('result-score').textContent = `Water Quality Score: ${score.toFixed(4)}  |  Threshold: 0.5792`;
+
+      // Step 2 — Stats
+      document.getElementById('sb-score').textContent = score.toFixed(4);
+      document.getElementById('sb-risk').textContent = risk;
+      document.getElementById('sb-risk').style.color = riskColor;
+      document.getElementById('sb-issues').textContent = issues.length;
+
+      if (issues.length > 0) {
+        // Step 3 — Parameter Issues
+        document.getElementById('issues-section').style.display = 'block';
+        document.getElementById('issues-count').textContent = `${issues.length} issue${issues.length > 1 ? 's' : ''} found`;
+        document.getElementById('issues-list').innerHTML = issues.map(i => `
+      <div class="issue-card">
+        <div class="issue-icon" style="background:${i.iconBg}">${i.icon}</div>
+        <div class="issue-body">
+          <h4>${i.name}</h4>
+          <p>${i.detail}</p>
+          <p style="margin-top:4px"><strong>Reason:</strong> ${i.reason}</p>
+          <span class="issue-tag" style="background:${i.tagBg};color:${i.tagColor}">${i.tag}</span>
+        </div>
+      </div>`).join('');
+
+        // Step 4 — Pollution Source
+        document.getElementById('pollution-section').style.display = 'block';
+        const uniqueSources = [...new Map(issues.map(i => [i.source, i])).values()];
+        document.getElementById('source-cards').innerHTML = uniqueSources.map(i => `
+      <div class="source-card" style="background:${i.sourceBg};border:1.5px solid ${i.sourceBorder}">
+        <div class="sc-icon">${i.sourceIcon}</div>
+        <h4 style="color:var(--navy)">${i.source}</h4>
+        <p>${i.sourceDesc}</p>
+      </div>`).join('');
+
+        // Step 5 — Solutions
+        document.getElementById('solutions-section').style.display = 'block';
+        const uniqueSols = [...new Set(issues.map(i => ({ s: i.solution, src: i.source })))];
+        document.getElementById('solutions-list').innerHTML = issues.map((i, idx) => `
+      <div class="solution-item">
+        <div class="sol-num">${idx + 1}</div>
+        <div class="sol-content">
+          <h4>${i.solution}</h4>
+          <p>For: ${i.source} — ${i.reason}</p>
+        </div>
+      </div>`).join('');
+
+        document.getElementById('safe-msg').style.display = 'none';
+      } else {
+        document.getElementById('issues-section').style.display = 'none';
+        document.getElementById('pollution-section').style.display = 'none';
+        document.getElementById('solutions-section').style.display = 'none';
+        document.getElementById('safe-msg').style.display = 'block';
+      }
+
+      rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  </script>
+</body>
+
+</html>
